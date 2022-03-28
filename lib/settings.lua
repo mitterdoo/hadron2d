@@ -17,7 +17,7 @@ along with this program (see LICENSE.md).
 If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local json = require("json")
+local json = require("lib.json")
 local settingsFile = "settings.json"
 
 local _data = {}
