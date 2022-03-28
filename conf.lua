@@ -1,3 +1,5 @@
+require("lib.settings")
+
 function love.conf(t)
 
 	t.identity = "brix33"
