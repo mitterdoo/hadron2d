@@ -1,0 +1,15 @@
+{
+	"files.exclude": {
+		"exclude/": true
+	},
+	"Lua.diagnostics.disable": [
+		"trailing-space",
+		"lowercase-global",
+		"deprecated"
+	],
+	"Lua.diagnostics.globals": [
+		"love",
+		"bit"
+	],
+	"Lua.runtime.version": "Lua 5.2"
+}
