@@ -75,6 +75,13 @@ function event.create()
 
 end
 
+function event.define(name)
+
+	assert(name ~= "create" and name ~= "define", "reserved name \"" .. name .. "\" for global event")
+	event[name] = event.create()
+
+end
+
 -- Add hooks for all applicable Love callbacks
 local callbacks = {
 	"displayrotated",

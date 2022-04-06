@@ -17,7 +17,17 @@ along with this program (see LICENSE.md).
 If not, see <https://www.gnu.org/licenses/>.
 ]]
 
-local scene = require "lib.scene"
+-- Master list of various files, such as scenes, controls, etc.
+-- These lists are ordered, so first objects will be required first
 
-scene.open()
+local list = {}
 
+list.scenes = {
+	"title"
+}
+
+list.controls = {
+
+}
+
+return list
