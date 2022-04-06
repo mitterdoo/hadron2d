@@ -17,47 +17,51 @@ along with this program (see LICENSE.md).
 If not, see <https://www.gnu.org/licenses/>.
 ]]
 
---[[
-	Global hook event system.
-	Inspired by same concept used in Garry's Mod Lua
-]]
+local event = {}
 
-local hook = {}
-local CallbackTable = {}
-function hook.add(event, identifier, callback)
 
-	if CallbackTable[event] == nil then
-		CallbackTable[event] = {}
-	end
+local CONN = {}
+function CONN:disconnect()
 
-	table.insert(CallbackTable[event], {identifier, callback})
+	assert(self.event ~= nil, "connection does not have an associated event to disconnect from")
+	self.event.callbacks[self] = nil
 
 end
 
---[[
-	Runs all callbacks for a certain event. Does not halt
-]]
-function hook.run(event, ...)
+local EVENT = {}
+function EVENT:connect(callback)
 
-	local list = CallbackTable[event]
-	if list == nil then return end
+	local identifier = setmetatable({event = self}, {__index = CONN})
+	self.callbacks[identifier] = callback
+	return identifier
 
-	for _, listener in pairs(list) do
-		listener[2](...)
+end
+
+function EVENT:wait()
+
+	local current, main = coroutine.running()
+	assert(not main, "cannot wait/yield on main coroutine")
+	local connection
+	connection = self:connect(function(...)
+		connection:disconnect()
+		coroutine.resume(current, ...)
+	end)
+	coroutine.yield(event)
+
+end
+
+function EVENT:fire(...)
+
+	for _, callback in pairs(self.callbacks) do
+		callback(...)
 	end
 
 end
 
---[[
-	Runs all callbacks for a certain event. If any of them return a value, it will break out of the iterator loop and return the value(s).
-]]
-function hook.call(event, ...)
+function EVENT:call(...)
 
-	local list = CallbackTable[event]
-	if list == nil then return end
-
-	for _, listener in pairs(list) do
-		local returns = {listener[2](...)}
+	for _, callback in pairs(self.callbacks) do
+		local returns = {callback(...)}
 		if #returns > 0 then
 			return unpack(returns)
 		end
@@ -65,21 +69,11 @@ function hook.call(event, ...)
 
 end
 
-function hook.remove(event, identifier)
+function event.create()
 
-	local list = CallbackTable[event]
-	if list ~= nil then
-		for k, v in pairs(list) do
-			if v[1] == identifier then
-				table.remove(list, k)
-				break
-			end
-		end
-	end
+	return setmetatable({callbacks = {}}, {__index = EVENT})
 
 end
-
-
 
 -- Add hooks for all applicable Love callbacks
 local callbacks = {
@@ -113,10 +107,11 @@ local callbacks = {
 
 
 for _, loveName in pairs(callbacks) do
+	local obj = event.create()
+	event[loveName] = obj
 	love[loveName] = function(...)
-		hook.run(loveName, ...)
+		obj:fire(...)
 	end
 end
 
-
-return hook
+return event
