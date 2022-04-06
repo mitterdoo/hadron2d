@@ -46,12 +46,17 @@ local function setActiveScene(name, from)
 
 end
 
+---Registers a scene that can be opened by the engine
+---@param name string
+---@param tab table Scene metatable
 function scene.register(name, tab)
 	scene.registry[name] = tab
 end
 
 -- Todo: Scene transitions
 
+---Opens the scene
+---@param name string
 function scene.open(name)
 
 	if name == nil then
@@ -73,6 +78,7 @@ function scene.open(name)
 
 end
 
+---Closes the active scene
 function scene.close()
 
 	if scene.active then

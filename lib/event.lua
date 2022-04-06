@@ -16,11 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program (see LICENSE.md).
 If not, see <https://www.gnu.org/licenses/>.
 ]]
-
 local event = {}
 
-
+---@class EventConnection
+---@field event Event
 local CONN = {}
+--[[
+	Disconnects the connection from its event
+]]
 function CONN:disconnect()
 
 	assert(self.event ~= nil, "connection does not have an associated event to disconnect from")
@@ -28,7 +31,13 @@ function CONN:disconnect()
 
 end
 
+---@class Event
+---@field callbacks table
 local EVENT = {}
+
+---Connects a function to be called back upon firing of the event
+---@param callback function Callback function
+---@return EventConnection connection A connection linked to this function that may be disconnected
 function EVENT:connect(callback)
 
 	local identifier = setmetatable({event = self}, {__index = CONN})
@@ -37,6 +46,7 @@ function EVENT:connect(callback)
 
 end
 
+---@async
 function EVENT:wait()
 
 	local current, main = coroutine.running()
@@ -49,6 +59,7 @@ function EVENT:wait()
 	coroutine.yield(event)
 
 end
+
 
 function EVENT:fire(...)
 
@@ -69,12 +80,16 @@ function EVENT:call(...)
 
 end
 
+---Create an event object to hook to
+---@return Event event
 function event.create()
 
 	return setmetatable({callbacks = {}}, {__index = EVENT})
 
 end
 
+---Defines a global event
+---@param name string 
 function event.define(name)
 
 	assert(name ~= "create" and name ~= "define", "reserved name \"" .. name .. "\" for global event")
