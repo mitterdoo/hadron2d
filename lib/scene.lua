@@ -89,11 +89,16 @@ function scene.close()
 	
 end
 
-_G.scene = scene -- hack
-for _, module in pairs(lists.scenes) do
-	require("scenes." .. module)
+function scene.loadScenes()
+
+	if scenesLoaded then return false end
+	for _, module in pairs(lists.scenes) do
+		require("scenes." .. module)
+	end
+	scenesLoaded = true
+	return true
+
 end
-_G.scene = nil
 
 event.draw:connect(function(dt)
 

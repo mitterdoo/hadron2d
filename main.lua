@@ -18,6 +18,7 @@ If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local scene = require "lib.scene"
+scene.loadScenes()
 
 scene.open()
 
