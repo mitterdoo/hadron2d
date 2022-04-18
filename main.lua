@@ -18,7 +18,10 @@ If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local scene = require "lib.scene"
+local sprite = require "lib.sprite"
+local lists = require "lists"
 scene.loadScenes()
+sprite.importSheets(lists.sprites)
 
 scene.open()
 
