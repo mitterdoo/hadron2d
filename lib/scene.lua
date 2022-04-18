@@ -21,6 +21,7 @@ local event = require "lib.event"
 local lists = require "lists"
 
 local scene = {}
+local scenesLoaded = false
 
 event.define("sceneClosing") -- (sceneObject)
 event.define("sceneClose") -- (name)
@@ -100,10 +101,10 @@ function scene.loadScenes()
 
 end
 
-event.draw:connect(function(dt)
+event.draw:connect(function()
 
 	if scene.active and type(scene.active.draw) == "function" then
-		scene.active:draw(dt)
+		scene.active:draw()
 	end
 
 end)
