@@ -46,6 +46,7 @@ function EVENT:connect(callback)
 
 end
 
+---Halts the current coroutine until the event is fired/called
 ---@async
 function EVENT:wait()
 
@@ -60,7 +61,8 @@ function EVENT:wait()
 
 end
 
-
+---Runs all event listeners
+---@vararg any
 function EVENT:fire(...)
 
 	for _, callback in pairs(self.callbacks) do
@@ -69,6 +71,9 @@ function EVENT:fire(...)
 
 end
 
+---Calls all event listeners until one of them returns a value
+---@vararg any
+---@return ... returns
 function EVENT:call(...)
 
 	for _, callback in pairs(self.callbacks) do

@@ -19,9 +19,13 @@ If not, see <https://www.gnu.org/licenses/>.
 
 local scene = require "lib.scene"
 local sprite = require "lib.sprite"
+local gui = require "lib.gui"
 local SCENE = {}
 
+local test
 function SCENE:open(from)
+
+	test = gui.create("Text")
 
 end
 
@@ -44,27 +48,15 @@ function SCENE:draw()
 	end
 
 	local fps = math.floor(fpsCount / total)
-	local start = 10
-	local spriteCount = math.min(35000, math.max(0, math.ceil(((love.timer.getTime() - start) * 60) ^ 1.5)))
-	local maxW = 48*2
-	local spritesDrawn = 0
 
-	math.randomseed(123452321)
-	for i = 1, spriteCount do
-		local positionIndex = i % 6000
-		local idx = math.random(1, 50)
-		if sprite.sheets[1][idx] ~= nil then
-			sprite.draw(1, idx,
-				8 * ((positionIndex - 1) % maxW + 1) + math.sin(love.timer.getTime()/0.5*math.pi*2+i*3)*8,
-				32 + 8 * math.floor((positionIndex - 1) / maxW) + math.cos(love.timer.getTime()/math.sqrt(2)/2*math.pi*2+i)*8,
-				32, 32)
-			spritesDrawn = spritesDrawn + 1
-		end
-	end
-
+	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.print("FPS: " .. fps, 0, 600 - 20)
 	love.graphics.print("This is a test scene!", 64, 64)
-	love.graphics.print("Sprites Drawn: " .. spritesDrawn, 100, 600 - 20)
+
+	test:SetPos(128, 128 + math.sin(love.timer.getTime() * math.pi * 2) * 48)
+	test:SetScale(-2, -4)
+
+	gui.draw()
 
 end
 

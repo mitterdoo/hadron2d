@@ -45,8 +45,28 @@ local function createMaterial(name, path)
 	local image = love.graphics.newImage(path)
 	sprite.imgs[name] = image
 end
+--[[
+Imports sprites from the given table.
 
-function sprite.importSheets(tab)
+Example structure:
+
+```lua
+{
+	-- single material
+	["materialName"] = "path/to/image",
+	-- spritesheet
+	[1] = {
+		"path/to/image",
+		{
+			[0] = {0, 0, 512, 512},
+			example_sprite = 0
+		}
+	}
+}
+```
+]]
+---@param tab any
+function sprite.loadSheets(tab)
 	for key, value in pairs(tab) do
 		if type(key) == "string" then
 			createMaterial(key, value)

@@ -18,10 +18,8 @@ If not, see <https://www.gnu.org/licenses/>.
 ]]
 
 local event = require "lib.event"
-local lists = require "lists"
 
 local scene = {}
-local scenesLoaded = false
 
 event.define("sceneClosing") -- (sceneObject)
 event.define("sceneClose") -- (name)
@@ -90,14 +88,13 @@ function scene.close()
 	
 end
 
-function scene.loadScenes()
+---Loads scenes found in the `scenes/` directory
+---@param scenes table
+function scene.loadScenes(scenes)
 
-	if scenesLoaded then return false end
-	for _, module in pairs(lists.scenes) do
+	for _, module in pairs(scenes) do
 		require("scenes." .. module)
 	end
-	scenesLoaded = true
-	return true
 
 end
 

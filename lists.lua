@@ -26,8 +26,8 @@ list.scenes = {
 	"title"
 }
 
-list.controls = {
-
+list.panels = {
+	"text"
 }
 
 list.sprites = {
