@@ -1,5 +1,5 @@
 --[[
-BRIX: Stack to the Death, a multiplayer brick stacking game originally written for the Starfall addon in Garry's Mod, now as a standalone Love2D game.
+Hadron2D Game Engine for LÖVE
 Copyright (C) 2022  Connor Ashcroft
 
 This program is free software: you can redistribute it and/or modify
