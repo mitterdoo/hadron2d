@@ -134,11 +134,39 @@ function EVENT:call(...)
 
 end
 
+---@class Filter
+---@field connection EventConnection
+local FILTER = setmetatable({}, EVENT)
+function FILTER:disconnect()
+	assert(self.connection, "filter is not connected!")
+	self.connection:disconnect()
+	self.connection = nil
+end
+
+--[[
+	Creates and connects a Filter to this Event.
+	Upon firing of the Event, a callback will be called.
+	If the callback returns anything, the Filter will fire
+]]
+---@param callback function
+---@return Filter
+function EVENT:createFilter(callback)
+	local filter = setmetatable({callbacks = {}}, FILTER)
+	filter.connection = self:connect(function(...)
+		
+		local returns = {callback(...)}
+		if #returns > 0 then
+			filter:fire(unpack(returns))
+		end
+
+	end)
+	return filter
+end
 ---Create an event object to hook to
 ---@return Event event
 function event.create()
 
-	return setmetatable({callbacks = {}}, {__index = EVENT})
+	return setmetatable({callbacks = {}}, EVENT)
 
 end
 
