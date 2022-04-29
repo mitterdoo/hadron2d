@@ -63,7 +63,7 @@ end
 ---Connects a function to be called back upon firing of the event. Will continue until the callback evaluates to true and disconnects the callback.
 ---@param callback function
 ---@return EventConnection connection A connection linked to this function that may be disconnected
-function EVENT:connect_conditional(callback)
+function EVENT:connectConditional(callback)
 
 	local connection
 	connection = self:connect(function(...)
@@ -95,7 +95,7 @@ end
 ---@async
 ---@param callback function
 ---@return ...
-function EVENT:wait_conditional(callback)
+function EVENT:waitConditional(callback)
 
 	local current, main = coroutine.running()
 	assert(not main, "cannot wait/yield on main coroutine")
