@@ -60,8 +60,24 @@ function EVENT:onetime(callback)
 
 end
 
----Halts the current coroutine until the event is fired/called
+---Connects a function to be called back upon firing of the event. Will continue until the callback evaluates to true and disconnects the callback.
+---@param callback function
+---@return EventConnection connection A connection linked to this function that may be disconnected
+function EVENT:connect_conditional(callback)
+
+	local connection
+	connection = self:connect(function(...)
+		if callback(...) then
+			connection:disconnect()
+		end
+	end)
+	return connection
+end
+
+
+---Halts the current coroutine until the event is fired/called. Returns the event parameters
 ---@async
+---@return ...
 function EVENT:wait()
 
 	local current, main = coroutine.running()
@@ -71,8 +87,27 @@ function EVENT:wait()
 		connection:disconnect()
 		coroutine.resume(current, ...)
 	end)
-	coroutine.yield(event)
+	return coroutine.yield(event) -- pass event library as sentinel
 
+end
+
+---Halts the current coroutine until the callback evaluates to true. Returns the event parameters
+---@async
+---@param callback function
+---@return ...
+function EVENT:wait_conditional(callback)
+
+	local current, main = coroutine.running()
+	assert(not main, "cannot wait/yield on main coroutine")
+	local connection
+	connection = self:connect(function(...)
+		if callback(...) then
+			connection:disconnect()
+			coroutine.resume(current, ...)
+		end
+	end)
+	return coroutine.yield(event) -- pass event library as sentinel
+	
 end
 
 ---Runs all event listeners
