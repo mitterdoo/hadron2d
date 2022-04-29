@@ -46,6 +46,20 @@ function EVENT:connect(callback)
 
 end
 
+---Connects a function to be called back upon firing of the event, but only one time.
+---@param callback function
+---@return EventConnection connection A connection linked to this function that may be disconnected
+function EVENT:onetime(callback)
+
+	local connection
+	connection = self:connect(function(...)
+		connection:disconnect()
+		callback(...)
+	end)
+	return connection
+
+end
+
 ---Halts the current coroutine until the event is fired/called
 ---@async
 function EVENT:wait()
