@@ -136,7 +136,7 @@ end
 
 ---@class Filter
 ---@field connection EventConnection
-local FILTER = setmetatable({}, EVENT)
+local FILTER = setmetatable({}, {__index = EVENT})
 function FILTER:disconnect()
 	assert(self.connection, "filter is not connected!")
 	self.connection:disconnect()
@@ -151,7 +151,7 @@ end
 ---@param callback function
 ---@return Filter
 function EVENT:createFilter(callback)
-	local filter = setmetatable({callbacks = {}}, FILTER)
+	local filter = setmetatable({callbacks = {}}, {__index = FILTER})
 	filter.connection = self:connect(function(...)
 		
 		local returns = {callback(...)}
@@ -166,7 +166,7 @@ end
 ---@return Event event
 function event.create()
 
-	return setmetatable({callbacks = {}}, EVENT)
+	return setmetatable({callbacks = {}}, {__index = EVENT})
 
 end
 

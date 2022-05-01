@@ -496,7 +496,7 @@ function gui.create(className, parent)
 		return self.perf_average + (self.perf_total - self.perf_average) * 1/100
 	end
 	
-	setmetatable(panel, gui.Classes[className])
+	setmetatable(panel, {__index = gui.Classes[className]})
 	if parent == nil then
 		parent = root
 	end
