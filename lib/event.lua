@@ -27,12 +27,15 @@ local CONN = {}
 function CONN:disconnect()
 
 	assert(self.event ~= nil, "connection does not have an associated event to disconnect from")
+	self.event._count = self.event._count - 1
+	self.event.listened = self.event._count > 0
 	self.event.callbacks[self] = nil
 
 end
 
 ---@class Event
 ---@field callbacks table
+---@field listened boolean Whether anything is listening to this Event
 local EVENT = {}
 
 ---Connects a function to be called back upon firing of the event
@@ -42,6 +45,8 @@ function EVENT:connect(callback)
 
 	local identifier = setmetatable({event = self}, {__index = CONN})
 	self.callbacks[identifier] = callback
+	self._count = self._count + 1
+	self.listened = true
 	return identifier
 
 end
@@ -114,6 +119,7 @@ end
 ---@vararg any
 function EVENT:fire(...)
 
+	if not self.listened then return end
 	for _, callback in pairs(self.callbacks) do
 		callback(...)
 	end
@@ -125,6 +131,7 @@ end
 ---@return ... returns
 function EVENT:call(...)
 
+	if not self.listened then return end
 	for _, callback in pairs(self.callbacks) do
 		local returns = {callback(...)}
 		if #returns > 0 then
@@ -166,7 +173,7 @@ end
 ---@return Event event
 function event.create()
 
-	return setmetatable({callbacks = {}}, {__index = EVENT})
+	return setmetatable({callbacks = {}, listened = false, _count = 0}, {__index = EVENT})
 
 end
 
@@ -185,6 +192,7 @@ local callbacks = {
 	"draw",
 	"load",
 	"quit",
+	"preupdate",
 	"update",
 	"focus",
 	"resize",
