@@ -611,6 +611,8 @@ local BindingTypes = {
 		end,
 
 		captureInput = function(self, fullName, pressed)
+			-- TODO FIX ;)
+		end
 			
 	},
 
