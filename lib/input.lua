@@ -452,7 +452,7 @@ end
 		override				table<string>
 			Same as above, but overrides the default input of the same key in the table.
 		state					State
-			
+			it's the state
 		
 ]]
 local BindingTypes = {
