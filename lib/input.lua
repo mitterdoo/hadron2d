@@ -150,7 +150,7 @@ local input = {}
 	No deadzones or any other input modifications are applied to them. The data is raw.
 	button_* and all key.* Inputs will be of type boolean
 	axis_*_x and axis_*_y Inputs will be a number in the range depending on the type of Input
-	axis_* Inputs will return two numbers, range also dependent on Input type
+	vector_* Inputs will return two numbers, range also dependent on Input type
 
 	Values of Inputs should be cached
 
