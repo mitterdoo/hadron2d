@@ -634,7 +634,7 @@ function gui.draw(context)
 	]]
 
 	if context == root then
-		local frac = timeFrac(time(), fade.start, fade.finish, true)
+		local frac = mapFrac(time(), fade.start, fade.finish, true)
 		if frac < 1 then
 			local alpha
 			if fade.active then

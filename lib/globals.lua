@@ -17,18 +17,18 @@ along with this program (see LICENSE.md).
 If not, see <https://www.gnu.org/licenses/>.
 ]]
 
----Returns a percentage (0-1) of how far through a given time is through a specified range
----@param time number
+---Returns a percentage (0-1) of how far through a given value is through a specified range
+---@param value number
 ---@param from number Start of range
 ---@param to number End of range
 ---@param clamp boolean Whether to clamp result to 0 - 1
 ---@return number Fraction
-function timeFrac(time, from, to, clamp)
+function mapFrac(value, from, to, clamp)
 	
 	if clamp then
-		return math.max(0, math.min(1, (time - from) / (to - from)))
+		return math.max(0, math.min(1, (value - from) / (to - from)))
 	else
-		return (time - from) / (to - from)
+		return (value - from) / (to - from)
 	end
 
 end
@@ -39,5 +39,17 @@ function lerp( delta, from, to )
 	if ( delta < 0 ) then return from end
 
 	return from + ( to - from ) * delta
+
+end
+
+---@param tab table
+---@return table
+function table.copy(tab)
+
+	local new = {}
+	for k, v in pairs(tab) do
+		new[k] = v
+	end
+	return new
 
 end

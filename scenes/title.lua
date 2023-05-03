@@ -20,12 +20,19 @@ If not, see <https://www.gnu.org/licenses/>.
 local scene = require "lib.scene"
 local sprite = require "lib.sprite"
 local gui = require "lib.gui"
+local input = require "lib.input"
 local SCENE = {}
 
 local test
 function SCENE:open(from)
 
 	test = gui.create("Text")
+	input.rawinput:connect(function(iName, iPlayer, ...)
+	
+		local args = {...}
+		print(iName, iPlayer, ...)
+
+	end)
 
 end
 
