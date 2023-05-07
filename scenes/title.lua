@@ -27,10 +27,28 @@ local test
 function SCENE:open(from)
 
 	test = gui.create("Text")
+	local testAction = input.binding.createAction("vector")
+
+	local testBinding = input.binding.createBinding(testAction, "button", "desktop")
+	testBinding.inputs = {
+		["key.d"] = 1,
+		["key.a"] = 2,
+		["key.w"] = 3,
+		["key.s"] = 4
+	}
+
 	input.rawinput:connect(function(iName, iPlayer, ...)
 	
-		local args = {...}
-		print(iName, iPlayer, ...)
+		local index = testBinding.inputs[iName]
+		if index then
+			testAction:fire(testBinding:handleInput(index, ...))
+		end
+
+	end)
+
+	testAction.changed:connect(function(x, y)
+	
+		print("CHANGED:", x, y)
 
 	end)
 
@@ -61,7 +79,7 @@ function SCENE:draw()
 	love.graphics.print("This is a test scene!", 64, 64)
 
 	test:SetPos(128, 128 + math.sin(love.timer.getTime() * math.pi * 2) * 48)
-	test:SetScale(-2, -4)
+	test:SetScale(8, 4)
 
 	gui.draw()
 

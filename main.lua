@@ -17,6 +17,7 @@ along with this program (see LICENSE.md).
 If not, see <https://www.gnu.org/licenses/>.
 ]]
 
+
 require "lib.globals"
 local scene = require "lib.scene"
 local sprite = require "lib.sprite"
