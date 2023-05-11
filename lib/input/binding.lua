@@ -97,7 +97,7 @@ binding.PROCESSORS = {
 	INVERT_Y = {
 		vector = function(self, x, y) return x, -y end
 	},
-	BINARY = {
+	ROUND = {
 		axis = function(self, x)
 			if x >= self.threshold then
 				return 1

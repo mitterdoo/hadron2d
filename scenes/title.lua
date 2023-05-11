@@ -25,54 +25,50 @@ local SCENE = {}
 
 local test
 function SCENE:open(from)
-	local function computeDeadzone(value, min, max)
-
-		max = max or 1
-		if value >= 0 then
-			return mapFrac(value, min, max, true)
-		else
-			return -mapFrac(-value, min, max, true)
-		end
-	
-	end
 	test = gui.create("Text")
-	local testAction = input.binding.createAction("vector")
 
-	local testBinding = input.binding.createBinding(testAction, "button", "desktop")
-	testBinding.inputs = {
+
+	local testAction = input.binding.createAction("vector") -- create an action that outputs a 2d vector (x, y)
+	local bindings = {} -- define a list of bindings (i plan to make this much more modular)
+
+	local testBinding = input.binding.createBinding(testAction, "button", "desktop") -- create a binding from a set of buttons to the action
+	testBinding.inputs = { -- map these keys to +x, -x, +y, -y
 		["key.d"] = 1,
 		["key.a"] = 2,
 		["key.w"] = 3,
 		["key.s"] = 4
 	}
 
-	local testBinding2 = input.binding.createBinding(testAction, "vector", "gamepad")
+	local testBinding2 = input.binding.createBinding(testAction, "vector", "gamepad") -- create a binding from a vector input to the action
 	testBinding2.inputs = {
-		["gamepad.vector_lstick"] = 1,
+		["gamepad.vector_lstick"] = 1, -- map the left stick to the output
 	}
+
+	-- set up a deadzone and invert y axis
 	testBinding2.processorHandler:add(input.binding.PROCESSORS.DEADZONE, {minX = 0.1, minY = 0.1})
 	testBinding2.processorHandler:add(input.binding.PROCESSORS.INVERT_Y)
-	testAction.processorHandler:add(input.binding.PROCESSORS.BINARY, {threshold = 0.85})
 
+	-- add these bindings to the list
+	bindings[1] = testBinding
+	bindings[2] = testBinding2
+
+	-- set up callback for an event that's dispatched when any sort of input is received (gamepad, keyboard, mouse)
 	input.rawinput:connect(function(iName, iPlayer, ...)
 	
-		local index = testBinding.inputs[iName]
-		if index then
-			testBinding.action:fire(testBinding:handleInput(index, ...))
-		else
-			index = testBinding2.inputs[iName]
-			if index then
-				testBinding2.action:fire(testBinding2:handleInput(index, ...))
+		for _, bind in pairs(bindings) do
+			local index = bind.inputs[iName] -- get numerical index of the mapped input
+			if index then -- if it's been mapped:
+				bind.action:fire(bind:handleInput(index, ...)) -- fire the action with whatever the binding outputs in its handler method
 			end
 		end
 
 	end)
 
-	testAction.changed:connect(function(x, y)
-	
-		print("CHANGED:", x, y)
-
-	end)
+	testAction.processorHandler:add(input.binding.PROCESSORS.ROUND, {threshold = 0.85}) -- add a processor to round the vector to the nearest integer if any axis goes beyond +-0.85
+	-- set up callbacks for Unity-style events tied to the action
+	testAction.started:connect(function(x, y) print("ACTION STARTED:", x, y) end)
+	testAction.changed:connect(function(x, y) print("ACTION CHANGED:", x, y) end)
+	testAction.stopped:connect(function(x, y) print("ACTION STOPPED:", x, y) end)
 
 end
 
