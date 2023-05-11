@@ -25,7 +25,16 @@ local SCENE = {}
 
 local test
 function SCENE:open(from)
+	local function computeDeadzone(value, min, max)
 
+		max = max or 1
+		if value >= 0 then
+			return mapFrac(value, min, max, true)
+		else
+			return -mapFrac(-value, min, max, true)
+		end
+	
+	end
 	test = gui.create("Text")
 	local testAction = input.binding.createAction("vector")
 
@@ -37,11 +46,24 @@ function SCENE:open(from)
 		["key.s"] = 4
 	}
 
+	local testBinding2 = input.binding.createBinding(testAction, "vector", "gamepad")
+	testBinding2.inputs = {
+		["gamepad.vector_lstick"] = 1,
+	}
+	testBinding2.processorHandler:add(input.binding.PROCESSORS.DEADZONE, {minX = 0.1, minY = 0.1})
+	testBinding2.processorHandler:add(input.binding.PROCESSORS.INVERT_Y)
+	testAction.processorHandler:add(input.binding.PROCESSORS.BINARY, {threshold = 0.85})
+
 	input.rawinput:connect(function(iName, iPlayer, ...)
 	
 		local index = testBinding.inputs[iName]
 		if index then
-			testAction:fire(testBinding:handleInput(index, ...))
+			testBinding.action:fire(testBinding:handleInput(index, ...))
+		else
+			index = testBinding2.inputs[iName]
+			if index then
+				testBinding2.action:fire(testBinding2:handleInput(index, ...))
+			end
 		end
 
 	end)

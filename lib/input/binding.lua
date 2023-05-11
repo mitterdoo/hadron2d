@@ -46,21 +46,113 @@ end
 
 
 
----@class Processor
+---@class ProcessorHandler
 ---@field funcs table<function>
+---@field expectedType string button|axis|vector|event
 local PROC = {}
 function PROC:call(...)
 	local args = {...}
-	for _, func in ipairs(self.funcs) do
-		args = {func(unpack(args))}
+	for _, data in ipairs(self.funcs) do
+		local func = data[1]
+		local funcData = data[2]
+		args = {func(funcData, unpack(args))}
 		if #args == 0 then return end
 	end
 	return unpack(args)
 end
-local function createProcessor()
+
+function PROC:addCustom(callback, data)
+	table.insert(self.funcs, {callback, data})
+end
+
+local function computeDeadzone(value, min, max)
+
+	max = max or 1
+	if value >= 0 then
+		return mapFrac(value, min, max, true)
+	else
+		return -mapFrac(-value, min, max, true)
+	end
+
+end
+
+--- Table of all prodessor functions
+binding.PROCESSORS = {
+	DEADZONE = {
+		axis = function(self, x)
+			return computeDeadzone(x, self.min, self.max)
+		end,
+		vector = function(self, x, y)
+			return computeDeadzone(x, self.minX, self.maxX), computeDeadzone(y, self.minY, self.maxY)
+		end
+	},
+	INVERT = {
+		button = function(self, x) return not x end,
+		axis = function(self, x) return -x end,
+		vector = function(self, x, y) return -x, -y end
+	},
+	INVERT_X = {
+		vector = function(self, x, y) return -x, y end
+	},
+	INVERT_Y = {
+		vector = function(self, x, y) return x, -y end
+	},
+	BINARY = {
+		axis = function(self, x)
+			if x >= self.threshold then
+				return 1
+			elseif x <= -self.threshold then
+				return -1
+			else
+				return 0
+			end
+		end,
+
+		vector = function(self, x, y)
+			if x >= self.threshold then
+				x = 1
+			elseif x <= -self.threshold then
+				x = -1
+			else
+				x = 0
+			end
+
+			if y >= self.threshold then
+				y = 1
+			elseif y <= -self.threshold then
+				y = -1
+			else
+				y = 0
+			end
+			return x, y
+		end
+	}
+}
+
+---Creates a processor using one of the predefined functions (see binding.PROCESSORS)
+---@param reference table Reference to a processor (should contain field(s) button|axis|vector|event)
+---@param data? table A table with variables to pass to the processor
+---@return table processor Pair of the function and the data
+function PROC:create(reference, data)
+	local func = reference[self.expectedType]
+
+	-- there must be a function that is for this type
+	assert(type(func) == "function", "Processor function for type \"" .. tostring(self.expectedType) .. "\" is nil or not a function.")
+	return {func, data}
+end
+
+---Creates and adds a processor using one of the predefined functions (see binding.PROCESSORS)
+---@param reference table Reference to a processor (should contain field(s) button|axis|vector|event)
+---@param data? table A table with variables to pass to the processor
+function PROC:add(reference, data)
+	table.insert(self.funcs, self:create(reference, data))
+end
+
+local function createProcessorHandler(expectedType)
 
 	return setmetatable({
-		funcs = {}
+		funcs = {},
+		expectedType = expectedType
 	}, {__index = PROC})
 
 end
@@ -72,13 +164,6 @@ end
 ---@field changed Event
 local STATE = {}
 STATE.__meta = STATE
-
----@param k number
-function STATE:__index(k)
-	if type(k) == "number" then
-		return self.state[k]
-	end
-end
 
 ---@param ... any
 ---@return table oldState Returns old state if a change was made
@@ -150,16 +235,7 @@ end
 
 
 
-local function computeDeadzone(value, min, max)
 
-	max = max or 1
-	if value >= 0 then
-		return mapFrac(value, min, max, true)
-	else
-		return mapFrac(value, -max, -min, true)
-	end
-
-end
 
 ---@class ButtonAxisHandler
 ---@field state State
@@ -174,7 +250,7 @@ function BAXISHANDLER:handleInput(index, pressed)
 
 	local state = self.state
 	if state:setSingle(index, pressed) then
-		if not state[1] and not state[2] then
+		if not state.state[1] and not state.state[2] then
 			-- idle
 			return self.output(0)
 		else
@@ -256,7 +332,7 @@ local BindingTypes = {
 
 		handleInput = function(self, index, pressed)
 			
-			return self.processor:call(pressed)
+			return self.processorHandler:call(pressed)
 
 		end,
 
@@ -280,7 +356,7 @@ local BindingTypes = {
 
 		handleInput = function(self, index, value)
 
-			return self.processor:call(value)
+			return self.processorHandler:call(value)
 
 		end,
 
@@ -307,9 +383,7 @@ local BindingTypes = {
 		init = function(self) end,
 
 		handleInput = function(self, index, x, y)
-
-			return self.processor:call(x, y)
-
+			return self.processorHandler:call(x, y)
 		end,
 
 		--[[captureInput = function(self, fullName, x, y)
@@ -330,7 +404,7 @@ local BindingTypes = {
 		init = function(self) end,
 
 		handleInput = function(self, index, ...)
-			return self.processor:call(...)
+			return self.processorHandler:call(...)
 		end,
 
 		--[[captureInput = function(self, fullName, ...)
@@ -348,7 +422,7 @@ local BindingTypes = {
 		init = function(self)
 			self.handler = createAxisHandler()
 			self.handler.output = function(newValue)
-				return self.processor:call(newValue)
+				return self.processorHandler:call(newValue)
 			end
 		end,
 
@@ -377,7 +451,7 @@ local BindingTypes = {
 
 				self._x = x
 				self._y = y
-				return self.processor:call(x, y)
+				return self.processorHandler:call(x, y)
 
 			end
 			self.handlerX.output = function(value)
@@ -391,7 +465,6 @@ local BindingTypes = {
 
 		handleInput = function(self, index, pressed)
 
-			print("handleInput button2vector", index, pressed)
 			if index <= 2 then
 				return self.handlerX:handleInput(index, pressed)
 			else
@@ -434,7 +507,7 @@ local BindingTypes = {
 		end,
 
 		handleInput = function(self, index, value)
-			return self.processor:call(value)
+			return self.processorHandler:call(value)
 		end
 
 	}
@@ -446,7 +519,7 @@ local BindingTypes = {
 ---@field stopped Event
 ---@field type string
 ---@field bindings table<Binding>
----@field processor Processor
+---@field processorHandler ProcessorHandler
 ---@field _inputCount number
 ---@field _state State
 local ACTION = {}
@@ -455,7 +528,7 @@ function ACTION:fire(...)
 
 	local args = {...}
 	if self.type == "event" then
-		args = {self.processor:call(...)}
+		args = {self.processorHandler:call(...)}
 		if #args ~= 0 then
 			self.started:fire(unpack(args))
 		end
@@ -467,7 +540,7 @@ function ACTION:fire(...)
 		error("Action fired with unexpected number of args (expected " .. self._inputCount .. ", got " .. len .. "). Does the Binding have the correct output type?")
 	end
 
-	args = {self.processor:call(...)}
+	args = {self.processorHandler:call(...)}
 	if #args == 0 then return end
 
 	local old = self._state:set(unpack(args))
@@ -532,7 +605,7 @@ local BindingTypeMap = {
 ---@class Binding
 ---@field action Action
 ---@field inputs table<string>
----@field processor Processor
+---@field processorHandler ProcessorHandler
 ---@field requiredInputs number
 local BINDING = {}
 
@@ -572,7 +645,7 @@ local function createBinding(action, inputType, scheme, ...)
 		action = action,
 		inputType = inputType,
 		requiredInputs = interface.requiredInputs,
-		processor = createProcessor(),
+		processorHandler = createProcessorHandler(inputType),
 		init = interface.init,
 		handleInput = interface.handleInput,
 		inputs = {}
@@ -596,7 +669,7 @@ local function createAction(type)
 
 		type = type,
 		bindings = {},
-		processor = createProcessor()
+		processorHandler = createProcessorHandler(type)
 	}, {__index = ACTION})
 
 	if type == "button" then
