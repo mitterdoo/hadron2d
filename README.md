@@ -1,3 +1,3 @@
-![hadron2D Logo](https://ranthos.com/u/2023-05/3635639e-f981-4324-8285-bd144eb66bd9.png)
+![hadron2D Logo](https://ranthos.com/u/2023-06/faccae6f-fbc4-4ac5-a9fd-89ac89e2cb4d.png)
 
 A simple game framework built for Love2D.
