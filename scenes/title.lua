@@ -25,9 +25,21 @@ local SCENE = {}
 
 local test
 function SCENE:open(from)
-	test = gui.create("Text")
 
 
+
+	test = gui.create("Rect")
+	test:SetSize(256, 64)
+	test:SetColor{1, 0, 0}
+
+	local label = gui.create("Label", test)
+	label:SetFont("header-bold")
+	label:SetText("hadron2D")
+	label:SetWrap(true)
+	label:SetSize(256, 64)
+	label:SetAlign("center", "center")
+
+	--[[
 	local testAction = input.binding.createAction("vector") -- create an action that outputs a 2d vector (x, y)
 	local bindings = {} -- define a list of bindings (i plan to make this much more modular)
 
@@ -69,7 +81,7 @@ function SCENE:open(from)
 	testAction.started:connect(function(x, y) print("ACTION STARTED:", x, y) end)
 	testAction.changed:connect(function(x, y) print("ACTION CHANGED:", x, y) end)
 	testAction.stopped:connect(function(x, y) print("ACTION STOPPED:", x, y) end)
-
+	]]
 end
 
 function SCENE:close()
@@ -92,12 +104,10 @@ function SCENE:draw()
 
 	local fps = math.floor(fpsCount / total)
 
+	gui.setFont()
+
 	love.graphics.setColor(1, 1, 1, 1)
 	love.graphics.print("FPS: " .. fps, 0, 600 - 20)
-	love.graphics.print("This is a test scene!", 64, 64)
-
-	test:SetPos(128, 128 + math.sin(love.timer.getTime() * math.pi * 2) * 48)
-	test:SetScale(8, 4)
 
 	gui.draw()
 

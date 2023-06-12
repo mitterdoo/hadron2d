@@ -27,7 +27,15 @@ list.scenes = {
 }
 
 list.panels = {
-	"text"
+	"rect",
+	"label"
+}
+
+list.fonts = {
+	["header"] = "res/font/default-32-light-wide.fnt",
+	["header-bold"] = "res/font/default-32-bold-wide.fnt",
+	["body"] = "res/font/default-24-extralight.fnt",
+	["body-bold"] = "res/font/default-24-bold.fnt"
 }
 
 list.sprites = {

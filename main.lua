@@ -26,6 +26,7 @@ local lists = require "lists"
 scene.loadScenes(lists.scenes)
 sprite.loadSheets(lists.sprites)
 gui.loadPanels(lists.panels)
+gui.loadFonts(lists.fonts)
 
 function love.run()
 	if love.load then love.load(love.arg.parseGameArguments(arg), arg) end

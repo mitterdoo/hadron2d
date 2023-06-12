@@ -155,6 +155,57 @@ end
 
 
 
+----------------------------------------------------------------
+---                          Fonts                           ---
+----------------------------------------------------------------
+
+--[[
+	Restructure idea:
+
+	gui.createFont(typeface, size, [weight], [width])
+	this is the end goal. one single typeface that fits multiple sizes and weights
+
+]]
+
+
+gui.fonts = {
+	["default"] = love.graphics.newFont("res/font/default-18-extralight.fnt")
+}
+love.graphics.setFont(gui.fonts.default)
+
+---Creates and registers a bitmap font using a `.fnt` file in `fontPath`
+---@param fontName string Name of the font for the registry
+---@param fontPath string Path to the font file
+function gui.createFont(fontName, fontPath)
+
+	if gui.fonts[fontName] then return end
+	local font = love.graphics.newFont(fontPath)
+	gui.fonts[fontName] = font
+
+end
+
+---Registers a `Font` object created beforehand.
+---@param fontName string Name of the font for the registry
+---@param fontObject love.Font Font object
+function gui.registerFont(fontName, fontObject)
+
+	gui.fonts[fontName] = fontObject
+
+end
+
+function gui.setFont(fontName)
+	if fontName == nil then
+		love.graphics.setFont(gui.fonts.default)
+	else
+		love.graphics.setFont(gui.fonts[fontName])
+	end
+end
+
+--- Can be nil!
+function gui.getFont(fontName)
+	return gui.fonts[fontName]
+end
+
 
 ----------------------------------------------------------------
 ---                         Panels                           ---
@@ -677,6 +728,12 @@ function gui.loadPanels(panels)
 		require("panels." .. fileName)
 	end
 
+end
+
+function gui.loadFonts(fonts)
+	for fName, fPath in pairs(fonts) do
+		gui.createFont(fName, fPath)
+	end
 end
 
 return gui
