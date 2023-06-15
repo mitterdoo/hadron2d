@@ -660,6 +660,9 @@ end
 
 binding.createBinding = createBinding
 
+---comment
+---@param type "button"|"axis"|"vector"|"event"
+---@return Action action
 local function createAction(type)
 
 	local action = setmetatable({
